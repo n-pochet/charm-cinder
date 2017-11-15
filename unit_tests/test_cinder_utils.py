@@ -167,7 +167,9 @@ class TestCinderUtils(CharmTestCase):
             ('test_conf1', ['svc1']),
             ('test_conf2', ['svc2', 'svc3', 'svc1']),
         ])
-        self.assertEqual(cinder_utils.services(), ['svc2', 'svc3', 'svc1'])
+        self.assertEqual(
+            sorted(cinder_utils.services()),
+            ['svc1', 'svc2', 'svc3'])
 
     @patch('cinder_utils.service_enabled')
     @patch('os.path.exists')
@@ -392,7 +394,7 @@ class TestCinderUtils(CharmTestCase):
 
     @patch('subprocess.check_output')
     def test_has_partition_table(self, _check):
-        _check.return_value = FDISKDISPLAY
+        _check.return_value = FDISKDISPLAY.encode()
         block_device = '/dev/fakevbd'
         cinder_utils.has_partition_table(block_device)
         _check.assert_called_with(['fdisk', '-l', '/dev/fakevbd'], stderr=-2)
@@ -808,7 +810,7 @@ class TestCinderUtils(CharmTestCase):
     @patch('subprocess.check_output')
     def test_log_lvm_info(self, _check):
         output = "some output"
-        _check.return_value = output
+        _check.return_value = output.encode()
         cinder_utils.log_lvm_info()
         _check.assert_called_with(['pvscan'])
         self.juju_log.assert_called_with("pvscan: %s" % output)

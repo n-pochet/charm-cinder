@@ -16,6 +16,7 @@ import logging
 import os
 import unittest
 import yaml
+import six
 
 from collections import OrderedDict
 
@@ -63,12 +64,20 @@ def get_default_config():
     '''
     default_config = {}
     config = load_config()
-    for k, v in config.iteritems():
+    for k, v in config.items():
         if 'default' in v:
             default_config[k] = v['default']
         else:
             default_config[k] = None
     return default_config
+
+
+def get_open_name():
+    '''Returns the name of the open() function'''
+    if six.PY3:
+        return 'builtins.open'
+    else:
+        return '__builtin__.open'
 
 
 class CharmTestCase(unittest.TestCase):
@@ -110,9 +119,9 @@ class TestConfig(object):
         return self.config
 
     def set(self, attr, value):
-            if attr not in self.config:
-                raise KeyError
-            self.config[attr] = value
+        if attr not in self.config:
+            raise KeyError
+        self.config[attr] = value
 
 
 class TestRelation(object):

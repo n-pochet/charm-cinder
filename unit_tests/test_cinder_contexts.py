@@ -17,6 +17,8 @@ import os
 from test_utils import CharmTestCase
 from mock import patch, MagicMock
 
+from test_utils import get_open_name
+
 import cinder_contexts as contexts
 
 os.environ['JUJU_UNIT_NAME'] = 'cinder'
@@ -437,7 +439,7 @@ class TestCinderContext(CharmTestCase):
             'volumes_dir': '/var/lib/cinder/volumes'}
         self.assertEqual(ctxt, expect)
 
-    @patch('__builtin__.open')
+    @patch(get_open_name())
     def test_volume_usage_audit_context(self, _open):
         self.config.return_value = 'month'
         ctxt = contexts.VolumeUsageAuditContext()()

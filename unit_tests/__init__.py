@@ -17,6 +17,7 @@ import mock
 
 sys.path.append('actions')
 sys.path.append('hooks')
+sys.path.append('unit_tests')
 cinder = mock.MagicMock()
 sqlalchemy = mock.MagicMock()
 sys.modules['sqlalchemy'] = sqlalchemy

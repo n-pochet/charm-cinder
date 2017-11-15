@@ -246,7 +246,7 @@ def register_configs(release=None):
     release = release or os_release('cinder-common', base='icehouse')
     configs = templating.OSConfigRenderer(templates_dir=TEMPLATES,
                                           openstack_release=release)
-    for cfg, rscs in resource_map().iteritems():
+    for cfg, rscs in resource_map().items():
         configs.register(cfg, rscs['contexts'])
     return configs
 
@@ -367,14 +367,14 @@ def restart_map():
                     that should be restarted when file changes.
     '''
     return OrderedDict([(cfg, v['services'])
-                        for cfg, v in resource_map().iteritems()
+                        for cfg, v in resource_map().items()
                         if v['services']])
 
 
 def enabled_services():
     m = restart_map()
     svcs = set()
-    for t in m.iteritems():
+    for t in m.items():
         svcs.update(t[1])
 
     return list(svcs)
@@ -449,7 +449,7 @@ def ensure_lvm_volume_group_non_existent(volume_group):
 
 def log_lvm_info():
     """Log some useful information about how LVM is setup."""
-    pvscan_output = subprocess.check_output(['pvscan'])
+    pvscan_output = subprocess.check_output(['pvscan']).decode('UTF-8')
     juju_log('pvscan: %s' % pvscan_output)
 
 
@@ -542,7 +542,7 @@ def prepare_volume(device):
 
 def has_partition_table(block_device):
     out = subprocess.check_output(['fdisk', '-l', block_device],
-                                  stderr=subprocess.STDOUT)
+                                  stderr=subprocess.STDOUT).decode('UTF-8')
     return "doesn't contain a valid partition" not in out
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Copyright 2016 Canonical Ltd
 #
@@ -67,7 +67,7 @@ def cinder_manage_volume_update_host(currenthost, newhost):
                                   "--newhost", newhost])
 
 
-def remove_services(args):
+def remove_services(action_args):
     load_config_file(os.path.join(os.path.sep, "etc", "cinder", "cinder.conf"))
 
     host = action_get(key="host")
@@ -130,3 +130,18 @@ def volume_host_add_driver(args):
     if action_args.get('volume-backend-name'):
         newhost = newhost + '#' + action_args['volume-backend-name']
     _rename_volume_host(action_args['currenthost'], newhost)
+
+
+ACTIONS = {
+    'remove_services': remove_services,
+    'rename_volume_host': rename_volume_host,
+    'volume_host_add_driver': volume_host_add_driver,
+}
+
+
+def main(args):
+    return ACTIONS[args[1]](args)
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

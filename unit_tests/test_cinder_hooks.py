@@ -14,6 +14,11 @@
 
 import json
 
+import six
+
+if six.PY3:
+    from importlib import reload
+
 from mock import (
     patch,
     call

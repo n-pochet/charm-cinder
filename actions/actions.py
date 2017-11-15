@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #
 # Copyright 2016 Canonical Ltd
 #
@@ -16,16 +16,20 @@
 
 import os
 import sys
+import subprocess
 
 sys.path.append('hooks/')
 
-from charmhelpers.core.hookenv import action_fail
+from charmhelpers.core.hookenv import (
+    action_fail,
+    action_get,
+)
 from cinder_utils import (
     pause_unit_helper,
     resume_unit_helper,
     register_configs,
 )
-import cinder_manage
+# import cinder_manage
 
 
 def pause(args):
@@ -41,14 +45,54 @@ def resume(args):
     resume_unit_helper(register_configs())
 
 
+def remove_services(args):
+    """Remove unused services entities from the database after enabling HA
+    with a stateless backend such as cinder-ceph
+    Calls cinder_manage.py python2 script with that function name.
+    The call is checked with subprocess.
+    """
+    host = "host={}".format(action_get(key="host"))
+    script = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), 'cinder_manage.py'))
+    cmd = [script, "remove_services", host]
+    cmd.extend(args)
+    subprocess.check_call(cmd)
+
+
+def rename_volume_host(args):
+    """Update the host attribute of volumes from currenthost to newhost
+    Calls cinder_manage.py python2 script with that function name.
+    The call is checked with subprocess.
+    """
+    script = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), 'cinder_manage.py'))
+    cmd = [script, "rename_volume_host"]
+    cmd.extend(args)
+    subprocess.check_call(cmd)
+
+
+def volume_host_add_driver(args):
+    """Rename the volume hostUpdate the os-vol-host-attr:host volume attribute
+    to include driver and volume name. Used for migrating volumes to
+    multi-backend and Ocata+ configurtation.
+    Calls cinder_manage.py python2 script with that function name.
+    The call is checked with subprocess.
+    """
+    script = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), 'cinder_manage.py'))
+    cmd = [script, "volume_host_add_driver"]
+    cmd.extend(args)
+    subprocess.check_call(cmd)
+
+
 # A dictionary of all the defined actions to callables (which take
 # parsed arguments).
 ACTIONS = {
     "pause": pause,
     "resume": resume,
-    "remove-services": cinder_manage.remove_services,
-    "rename-volume-host": cinder_manage.rename_volume_host,
-    "volume-host-add-driver": cinder_manage.volume_host_add_driver,
+    "remove-services": remove_services,
+    "rename-volume-host": rename_volume_host,
+    "volume-host-add-driver": volume_host_add_driver,
 }
 
 
